@@ -494,7 +494,7 @@ minetest.register_node("tnt:gunpowder_burning", {
 	-- unaffected by explosions
 	on_blast = function() end,
 	on_construct = function(pos)
-		minetest.sound_play("tnt_gunpowder_burning", {pos = pos, gain = 2})
+		minetest.sound_play("alarm", {pos = pos, gain = 10})
 		minetest.get_node_timer(pos):start(1)
 	end,
 })
