@@ -3,6 +3,8 @@ tnt = {}
 local singleplayer = minetest.is_singleplayer()
 local setting = minetest.setting_getbool("enable_tnt")
 setting = true -- this mod is multiplayer-safe, so enable it.
+local tntmindepth = tonumber(minetest.setting_get("tnt_mindepth")) or -100
+
 if (not singleplayer and setting ~= true) or
 		(singleplayer and setting == false) then
 	return
@@ -364,8 +366,8 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast)
 end
 
 function tnt.boom(pos, def)
-        if pos.y > -100 then
---	   minetest.chat_send_all("TNT can only explode when deeper than -100")
+        if pos.y > tntmindepth then
+--	   check if we're deep enough
 	   minetest.set_node(pos, {name = "tnt:tnt"})
 	   return
 	end
@@ -417,9 +419,10 @@ minetest.register_node("tnt:gunpowder", {
 	sounds = default.node_sound_leaves_defaults(),
 
 	on_punch = function(pos, node, puncher)
-		if puncher:get_wielded_item():get_name() == "default:torch" then
-			tnt.burn(pos)
-		end
+	   if puncher:get_wielded_item():get_name() == "default:torch" and pos.y < (tntmindepth + 16)then
+	      -- check if we're deep enough, don't annoy people with the air-raid sound.
+	      tnt.burn(pos)
+	   end
 	end,
 	on_blast = function(pos, intensity)
 		tnt.burn(pos)
